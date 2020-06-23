@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>User</title>
+<style type="text/css"> 
+input, button, select {
+    margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+<h1>Search or Delete</h1>
+<label for="username">username: </label>
+<input type="text" id="username">
+
+<button id="submit">search this person</button>
+<button id="submit_all">search all people</button>
+<button id="delete">delete the member</button>
+<div id="login"></div>
+
+
+<h1>~ Become a Member ~</h1>
+<label for="uid">username:</label>
+<input type="text" id="uid"><br>
+<label for="pwd">password:</label>
+<input type="text" id="pwd"><br>
+<label for="fname">first_name:</label>
+<input type="text" id="fname"><br>
+<label for="lname">last_name:</label>
+<input type="text" id="lname"><br>
+<button id="save">submit to create a member</button>
+<button id="update">submit to update a member's info</button>
+<div id="show"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/JavaScript">
+$(document).ready(function() {
+		$("#submit").click(function(event) {
+			if($("#username").val()==""){
+					$("#login").html("Please fill up the blank");
+					return;
+			}
+			$.ajax({
+				url: "http://140.118.110.79/api/UserAPI.php/users/",
+				method: "GET",
+				dataType: "json",
+				data: {
+					username: $("#username").val()
+				},
+				success: function(data) {
+					if(data.message=="")//無此user
+						$("#login").html(
+							data.message+'[登入成功] <br /> 編號 : ' + data.user.id + ', 帳號名稱 : ' + data.user.username + ', 姓名 : ' + data.user.last_name + data.user.first_name
+						);
+					else{//有此user
+						$("#login").html(data.message);
+					}
+					console.log(data);
+				},
+				error: function(err, status, errorThrown) {
+					console.log("Data: " + err + "\nStatus: " + status + "\nError: " + errorThrown);
+				}
+			});
+			event.preventDefault();
+		});
+		$("#submit_all").click(function(event) {
+			$.ajax({
+				url: "http://140.118.110.79/api/UserAPI.php/users/",
+				method: "GET",
+				dataType: "json",
+				data: {},
+				success: function(data) {
+						var length = Object.keys(data.users).length;//看users長度(有幾個user)
+						var str="";
+						for (var i=0 ; i<length; i++){ //把每個人存進str中(字串)
+							str = str +　'編號 : ' + data.users[i].id + ', 帳號名稱 : ' + data.users[i].username + ', 姓名 : ' + data.users[i].last_name + data.users[i].first_name + '<br />' ;
+						}
+						$("#login").html('[登入成功]<br />'+str)//印出來				
+						console.log(data);
+				},
+				error: function(err, status, errorThrown) {
+					console.log("Data: " + err + "\nStatus: " + status + "\nError: " + errorThrown);
+				}
+			});
+			event.preventDefault();
+		});
+		$("#update").click(function() {
+			if(($("#uid").val()==""||$("#pwd").val()==""||$("#fname").val()==""||$("#lname").val()=="")){
+					$("#show").html("Please fill up every blank");
+					return;
+			}
+			$.ajax({
+				type: "PUT",
+				url: "http://140.118.110.79/api/UserAPI.php/users?username="+ $("#uid").val()+"&password="+ $("#pwd").val() + "&first_name="+ $("#fname").val()+"&last_name="+ $("#lname").val(),
+				dataType: "json",
+				data: {
+					username: $("#uid").val(),
+					password: $("#pwd").val(),
+					first_name: $("#fname").val(),
+					last_name: $("#lname").val(),
+				},
+				success: function(data) {
+					if(data.message=="")
+						$("#show").html(
+							'[更改成功] <br /> 編號 : ' + data.add_user.id + ', 帳號名稱 : ' + data.add_user.username + ', 姓名 : ' + data.add_user.last_name + data.add_user.first_name + ', 更改日期 : ' +data.add_user.last_modified_date
+						);
+					else{
+						$("#show").html(data.message);
+					}                   
+				},
+				error: function(jqXHR) {
+					alert("發生錯誤: cannot update this user" );
+				}
+			});
+			event.preventDefault();
+		});
+		$("#save").click(function() {
+			if(($("#uid").val()==""||$("#pwd").val()==""||$("#fname").val()==""||$("#lname").val()=="")){
+					$("#show").html("Please fill up every blank");
+					return;
+			}
+			$.ajax({
+				type: "POST",
+				url: "http://140.118.110.79/api/UserAPI.php/users",
+				dataType: "json",
+				data: {
+					username: $("#uid").val(),
+					password: $("#pwd").val(),
+					first_name: $("#fname").val(),
+					last_name: $("#lname").val(),
+				},
+				success: function(data) {
+					if(data.add_user!="")
+						$("#show").html(
+							data.message + '<br />[註冊成功] <br /> 編號 : ' + data.add_user.id + ', 帳號名稱 : ' + data.add_user.username + ', 姓名 : ' + data.add_user.last_name + data.add_user.first_name
+						);
+					else{
+						$("#show").html(data.message);
+					}                   
+				},
+				error: function(jqXHR) {
+					alert("發生錯誤: cannot add this user" );
+				}
+			});
+			event.preventDefault();
+		});
+		$("#delete").click(function() {
+			$.ajax({
+				type: "DELETE",
+				url: "http://140.118.110.79/api/UserAPI.php/users?username="+ $("#username").val(),
+				dataType: "json",
+				data: {
+					username: $("#username").val(),
+				},
+				success: function(data) {
+					if(data.message=="")
+						$("#login").html(
+							'[刪除失敗]' 
+						);
+					else{
+						$("#login").html(data.message);
+					}                   
+				},
+				error: function(jqXHR) {
+					alert("發生錯誤: cannot delete this user" );
+				}
+			});
+			event.preventDefault();
+		});
+});
+</script>
+</body>
+</html>

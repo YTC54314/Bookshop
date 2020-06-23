@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>BOOK REVIEW</title>
+<style type="text/css"> 
+input, button, select {
+    margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+<h1>Search or Delete</h1>
+<label for="user">user_id: </label>
+<input type="text" id="user">
+<button id="submit_user">search review by user_id</button>
+<label for="book">book_id: </label>
+<input type="text" id="book">
+<button id="submit_book">search review by book_id</button>
+<br/>
+<div id="here1"></div>
+
+<button id="submit">search review by both indexes</button>
+<button id="submit_all">serch all reviews</button>
+<button id="delete">delete the review</button>
+<div id="here"></div>
+
+
+<h1>~ Add a Book Review ~</h1>
+<label for="user_id">user_id(you must be a member):</label>
+<input type="text" id="user_id"><br>
+<label for="book_id">book_id(the book must in the book list):</label>
+<input type="text" id="book_id"><br>
+<label for="rating">rating:</label>
+<select id="rating">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+</select><br>
+<label for="review">review:</label>
+<input type="text" id="review"><br>
+
+<button id="save">submit to create a review</button>
+<button id="update">submit to update a review</button>
+<div id="show"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/JavaScript">
+$(document).ready(function() {
+		$("#submit_user").click(function(event) {
+			if(($("#user").val()=="")){
+					$("#here1").html("Please fill up the blank");
+					return;
+			}
+			$.ajax({
+				url: "http://140.118.110.79/api/BookreviewAPI.php/books/",
+				method: "GET",
+				dataType: "json",
+				data: {
+					user_id: $("#user").val()
+				},
+				success: function(data) {
+					if(data.message!="")//無此user
+						$("#here1").html(data.message);
+					else{//有此user
+						var length = Object.keys(data.users).length;//看users長度(有幾個user)
+						var str="";
+						for (var i=0 ; i<length; i++){ //把每個人存進str中(字串)
+							str = str +　'user編號 : ' + data.users[i].user_id + ', book編號 : ' + data.users[i].book_id + ', 評分 : ' + data.users[i].rating + ', 評語 : ' + data.users[i].review +'<br/>' ;
+						}
+						$("#here1").html('[搜尋成功]<br />'+str)//印出來				
+						console.log(data);
+					}
+					console.log(data);
+				},
+				error: function(err, status, errorThrown) {
+					console.log("Data: " + err + "\nStatus: " + status + "\nError: " + errorThrown);
+				}
+			});
+			event.preventDefault();
+		});
+		$("#submit_book").click(function(event) {
+			if(($("#book").val()=="")){
+					$("#here1").html("Please fill up the blank");
+					return;
+			}
+			$.ajax({
+				url: "http://140.118.110.79/api/BookreviewAPI.php/books/",
+				method: "GET",
+				dataType: "json",
+				data: {
+					book_id: $("#book").val()
+				},
+				success: function(data) {
+					if(data.message!="")//無此user
+						$("#here1").html(data.message);
+					else{//有此user
+						var length = Object.keys(data.users).length;//看users長度(有幾個user)
+						var str="";
+						for (var i=0 ; i<length; i++){ //把每個人存進str中(字串)
+							str = str +　'user編號 : ' + data.users[i].user_id + ', book編號 : ' + data.users[i].book_id + ', 評分 : ' + data.users[i].rating + ', 評語 : ' + data.users[i].review +'<br/>' ;
+						}
+						$("#here1").html('[搜尋成功]<br />'+str)//印出來				
+						console.log(data);
+					}
+					console.log(data);
+				},
+				error: function(err, status, errorThrown) {
+					console.log("Data: " + err + "\nStatus: " + status + "\nError: " + errorThrown);
+				}
+			});
+			event.preventDefault();
+		});
+		$("#submit").click(function(event) {
+			if(($("#book").val()==""||$("#user").val()=="")){
+					$("#here1").html("Please fill up the blank");
+					return;
+			}
+			$.ajax({
+				url: "http://140.118.110.79/api/BookreviewAPI.php/books/",
+				method: "GET",
+				dataType: "json",
+				data: {
+					user_id: $("#user").val(),
+					book_id: $("#book").val()
+				},
+				success: function(data) {
+					if(data.message!="")//無此user
+						$("#here1").html(data.message);
+					else{//有此user
+						$("#here1").html(
+							'[搜尋成功] <br /> user編號 : ' + data.user.user_id + ', book編號 : ' + data.user.book_id + ', 評分 : ' + data.user.rating + ', 評語 : ' + data.user.review
+						);
+					}
+					console.log(data);
+				},
+				error: function(err, status, errorThrown) {
+					console.log("Data: " + err + "\nStatus: " + status + "\nError: " + errorThrown);
+				}
+			});
+			event.preventDefault();
+		});
+		$("#submit_all").click(function(event) {
+			$.ajax({
+				url: "http://140.118.110.79/api/BookreviewAPI.php/books/",
+				method: "GET",
+				dataType: "json",
+				data: {},
+				success: function(data) {
+					if(data.message!="")//無此user
+						$("#here").html(data.message);
+					else{//有此user
+							var length = Object.keys(data.users).length;//看users長度(有幾個user)
+							var str="";
+							for (var i=0 ; i<length; i++){ //把每個人存進str中(字串)
+								str = str +　'user編號 : ' + data.users[i].user_id + ', book編號 : ' + data.users[i].book_id + ', 評分 : ' + data.users[i].rating + ', 評語 : ' + data.users[i].review +'<br/>' ;
+							}
+							$("#here").html('[搜尋成功]<br />'+str);
+						}//印出來				
+						console.log(data);
+				},
+				error: function(err, status, errorThrown) {
+					console.log("Data: " + err + "\nStatus: " + status + "\nError: " + errorThrown);
+				}
+			});
+			event.preventDefault();
+		});
+		$("#update").click(function() {
+			if(($("#user_id").val()==""||$("#book_id").val()==""||$("#rating").val()==""||$("#review").val()=="")){
+					$("#show").html("Please fill up every blank");
+					return;
+			}
+			$.ajax({
+				type: "PUT",
+				url: "http://140.118.110.79/api/BookreviewAPI.php/books?user_id=" + $("#user_id").val() + "&book_id=" + $("#book_id").val() + "&rating="+ $("#rating").val() + "&review=" + $("#review").val(),
+				dataType: "json",
+				data: {
+					bookname: $("#uid").val(),
+					password: $("#pwd").val(),
+					rating: $("#rating").val(),
+					review: $("#review").val(),
+				},
+				success: function(data) {
+					if(data.add_user!=""){
+						console.log("here");
+						console.log(data.add_user);
+						$("#show").html(
+							data.message + '<br />[更改成功] <br /> user編號 : ' + data.add_user.user_id + ', book編號 : ' + data.add_user.book_id + ', 評分 : ' + data.add_user.rating + ', 評語 : ' + data.add_user.review + ', 更改評論時間 : ' + data.add_user.last_modified_date 
+						);
+					}
+					else{
+						$("#show").html(data.message);
+					}                   
+				},
+				error: function() {
+					alert("發生錯誤: cannot update this review" );
+				}
+			});
+			event.preventDefault();
+		});
+		$("#save").click(function() {
+			if(($("#user_id").val()==""||$("#book_id").val()==""||$("#rating").val()==""||$("#review").val()=="")){
+					$("#show").html("Please fill up every blank");
+					return;
+			}
+			$.ajax({
+				type: "POST",
+				url: "http://140.118.110.79/api/BookreviewAPI.php/books/",
+				dataType: "json",
+				data: {
+					user_id: $("#user_id").val(),
+					book_id: $("#book_id").val(),
+					rating: $("#rating").val(),
+					review: $("#review").val(),
+				},
+				success: function(data) {
+					if(data.add_user!=""){
+						console.log("here");
+						console.log(data.add_user);
+						$("#show").html(
+							data.message + '<br />[新增成功] <br /> user編號 : ' + data.add_user.user_id + ', book編號 : ' + data.add_user.book_id + ', 評分 : ' + data.add_user.rating + ', 評語 : ' + data.add_user.review + ', 評論時間 : ' + data.add_user.review_date 
+						);
+					}
+					else{
+						$("#show").html(data.message);
+					}                   
+				},
+				error: function() {
+					alert("發生錯誤: cannot add this review" );
+				}
+			});
+			event.preventDefault();
+		});
+		$("#delete").click(function() {
+			if(($("#book").val()==""||$("#user").val()=="")){
+					$("#here1").html("Please fill up the blank");
+					return;
+			}
+			$.ajax({
+				type: "DELETE",
+				url: "http://140.118.110.79/api/BookreviewAPI.php/books?user_id="+ $("#user").val()+"&book_id="+ $("#book").val(),
+				dataType: "json",
+				data: {
+					user: $("#user").val(),
+					book: $("#book").val(),
+				},
+				success: function(data) {
+					if(data.message=="")
+						$("#here1").html(
+							'[刪除失敗]' 
+						);
+					else{
+						$("#here1").html(data.message);
+					}                   
+				},
+				error: function(jqXHR) {
+					alert("發生錯誤: cannot delete this user" );
+				}
+			});
+			event.preventDefault();
+		});
+});
+</script>
+</body>
+</html>
